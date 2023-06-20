@@ -1,3 +1,4 @@
+import os
 import nltk
 from nltk.tokenize import sent_tokenize
 from nltk.corpus import stopwords
@@ -9,8 +10,6 @@ import networkx as nx
 nltk.download('punkt')  # используется для токенизации
 nltk.download('stopwords')
 
-filename = "source.txt"
-output_filename = "output.txt"
 stop_words = stopwords.words('russian')
 
 # Функция для преобразования текста в векторы
@@ -29,14 +28,23 @@ def textrank(text, num_sentences=3):
     summary = ' '.join([s for _, s in ranked_sentences[:num_sentences]])
     return summary
 
+input_dir = "input/"
+output_dir = "output/"
 
-# Загрузка текста из файла
-with open(filename, 'r', encoding='utf-8') as file:
-    text = file.read()
+# Проверяем, что папка output существует, иначе создаем ее
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
 
-# Генерация краткой сводки текста
-summary = textrank(text, 15)
+# Перебираем все файлы в папке input
+for filename in os.listdir(input_dir):
+    if filename.endswith('.txt'):
+        # Загрузка текста из файла
+        with open(os.path.join(input_dir, filename), 'r', encoding='utf-8') as file:
+            text = file.read()
 
-# Сохранение краткой сводки в файл
-with open(output_filename, 'w', encoding='utf-8') as file:
-    file.write(summary)
+        # Генерация краткой сводки текста
+        summary = textrank(text, num_sentences=3)
+
+        # Сохранение краткой сводки в файл
+        with open(os.path.join(output_dir, filename), 'w', encoding='utf-8') as file:
+            file.write(summary)
